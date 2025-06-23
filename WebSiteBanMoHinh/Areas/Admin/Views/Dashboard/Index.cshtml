@@ -1,1 +1,475 @@
-﻿
+﻿@model StatisticalModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var ctx = document.getElementById('myfirstchart').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Số lượng bán ra',
+                        data: [],
+                        borderColor: '#1E90FF', // Xanh dương đậm
+                        backgroundColor: 'rgba(30, 144, 255, 0.2)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#1E90FF'
+                    }, {
+                        label: 'Đơn hàng',
+                        data: [],
+                        borderColor: '#32CD32', // Xanh lá cây
+                        backgroundColor: 'rgba(50, 205, 50, 0.2)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#32CD32'
+                    }, {
+                        label: 'Doanh thu',
+                        data: [],
+                        borderColor: '#FFD700', // Vàng đậm
+                        backgroundColor: 'rgba(255, 215, 0, 0.2)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#FFD700'
+                    }, {
+                        label: 'Lợi nhuận',
+                        data: [],
+                        borderColor: '#DC143C', // Đỏ đậm
+                        backgroundColor: 'rgba(220, 20, 60, 0.2)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#DC143C'
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Ngày'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Giá trị',
+                                rotation: 90 // Xoay chữ "Giá trị" 90 độ
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: true },
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    let value = context.parsed.y;
+                                    if (label === 'Doanh thu' || label === 'Lợi nhuận') {
+                                        return `${label}: ${value.toLocaleString()} VND`;
+                                    }
+                                    return `${label}: ${value}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            function updateChart(data) {
+                chart.data.labels = data.map(item => item.date);
+                chart.data.datasets[0].data = data.map(item => item.sold);
+                chart.data.datasets[1].data = data.map(item => item.quantity);
+                chart.data.datasets[2].data = data.map(item => item.revenue);
+                chart.data.datasets[3].data = data.map(item => item.profit);
+                chart.update();
+                updateTable(data);
+                updateSummary(data);
+            }
+
+            function updateTable(data) {
+                var tbody = $('#dataTable');
+                tbody.empty();
+                if (data.length === 0) {
+                    tbody.append('<tr><td colspan="5" class="text-center">Không có dữ liệu để hiển thị</td></tr>');
+                    return;
+                }
+                data.forEach(item => {
+                    tbody.append(`
+                        <tr>
+                            <td>${item.date}</td>
+                            <td>${item.sold}</td>
+                            <td>${item.quantity}</td>
+                            <td>${item.revenue.toLocaleString()} VND</td>
+                            <td>${item.profit.toLocaleString()} VND</td>
+                        </tr>
+                    `);
+                });
+            }
+
+            function updateSummary(data) {
+                var totalRevenue = data.reduce((sum, item) => sum + item.revenue, 0);
+                var totalProfit = data.reduce((sum, item) => sum + item.profit, 0);
+                $('#totalRevenue').text(totalRevenue.toLocaleString());
+                $('#totalProfit').text(totalProfit.toLocaleString());
+            }
+
+            $.ajax({
+                url: "@Url.Action("GetChartData", "Dashboard")",
+                type: "POST",
+                dataType: "json",
+                success: function (data) {
+                    if (data && data.length > 0) {
+                        updateChart(data);
+                    } else {
+                        console.warn("No data received for chart update.");
+                        updateChart([]);
+                    }
+                },
+                error: function (error) {
+                    console.error("Error fetching data:", error);
+                }
+            });
+
+            $('.filter-select').on('change', function () {
+                var days = $(this).val();
+                var endDate = new Date();
+                var startDate = new Date(endDate.getTime() - days * 24 * 60 * 60 * 1000);
+                $.ajax({
+                    url: "@Url.Action("GetChartDataBySelect", "Dashboard")",
+                    type: 'POST',
+                    dataType: "json",
+                    data: {
+                        startDate: startDate.toISOString().split('T')[0],
+                        endDate: endDate.toISOString().split('T')[0]
+                    },
+                    success: function (data) {
+                        if (data && data.length > 0) {
+                            updateChart(data);
+                        } else {
+                            console.warn("No data received for chart update.");
+                            updateChart([]);
+                        }
+                    },
+                    error: function (error) {
+                        console.error("Error fetching data:", error);
+                    }
+                });
+            });
+
+            $("#filterButton").click(function () {
+                var fromDate = $("#date_from").val();
+                var toDate = $("#date_to").val();
+                $.ajax({
+                    url: "@Url.Action("FilterData", "Dashboard")",
+                    data: { fromDate: fromDate, toDate: toDate },
+                    type: "POST",
+                    success: function (data) {
+                        if (data && data.length > 0) {
+                            updateChart(data);
+                        } else {
+                            console.warn("No data received for chart update.");
+                            updateChart([]);
+                        }
+                    },
+                    error: function (error) {
+                        console.error("Error fetching data:", error);
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+<div class="content-container">
+    <h3>Dashboard Statistic</h3>
+
+    <div class="row">
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <p><i class="fas fa-box"></i> Thống kê sản phẩm</p>
+                <span>@ViewBag.CountProduct</span>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <p><i class="fas fa-shopping-cart"></i> Thống kê đơn hàng</p>
+                <span>@ViewBag.CountOrder</span>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <p><i class="fas fa-list"></i> Thống kê danh mục</p>
+                <span>@ViewBag.CountCategory</span>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <p><i class="fas fa-users"></i> Thống kê user</p>
+                <span>@ViewBag.CountUser</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="filter-section">
+        <div class="row">
+            <div class="col-md-6 col-sm-12">
+                <h4>Lọc dữ liệu theo:</h4>
+                <select class="filter-select">
+                    <option value="30">----Lọc dữ liệu----</option>
+                    <option value="7">7 ngày trước</option>
+                    <option value="30">Tháng qua</option>
+                    <option value="90">3 tháng trước</option>
+                    <option value="365">1 năm</option>
+                </select>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <h4>Tùy chọn:</h4>
+                <label>Từ ngày</label>
+                <input type="date" class="form-control" id="date_from" asp-for="@Model.CreatedDate" />
+                <label>Đến ngày</label>
+                <input type="date" class="form-control" id="date_to" asp-for="@Model.CreatedDate" />
+                <button id="filterButton" class="btn btn-primary">Filter</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-section">
+        <p>Biểu đồ thống kê</p>
+        <canvas id="myfirstchart" style="height: 400px; width: 100%;"></canvas>
+    </div>
+
+    <div class="summary-section">
+        <p>Tổng doanh thu: <span id="totalRevenue">0</span> VND</p>
+        <p>Tổng lợi nhuận: <span id="totalProfit">0</span> VND</p>
+    </div>
+
+    <div class="table-section">
+        <p>Dữ liệu chi tiết</p>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Ngày</th>
+                    <th>Số lượng bán</th>
+                    <th>Đơn hàng</th>
+                    <th>Doanh thu</th>
+                    <th>Lợi nhuận</th>
+                </tr>
+            </thead>
+            <tbody id="dataTable"></tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    :root {
+        --primary-color: rgb(216, 172, 68); /* #D8AC44 */
+        --secondary-color: rgb(255, 204, 102); /* #FFCC66 */
+        --text-color: rgb(50, 50, 50); /* #323232 */
+        --gold-color: #DAA520;
+    }
+
+    .content-container {
+        padding: 20px;
+        background: #FFFFFF;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        margin: 20px;
+    }
+
+    h3 {
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        -webkit-background-clip: text;
+        color: transparent;
+        font-weight: 900;
+        font-size: 2.5rem;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, #fff, #f9f1e7);
+        border: 1px solid var(--secondary-color);
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card p {
+            color: var(--text-color);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-card i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        .stat-card span {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+    .filter-section {
+        margin: 20px 0;
+        padding: 20px;
+        background: #F5F5F5;
+        border-radius: 10px;
+    }
+
+        .filter-section h4 {
+            color: var(--text-color);
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+    .filter-select, .form-control {
+        border: 1px solid var(--secondary-color);
+        border-radius: 5px;
+        padding: 8px;
+        width: 100%;
+        max-width: 250px;
+        transition: border-color 0.3s ease;
+    }
+
+        .filter-select:focus, .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+    .btn-primary {
+        background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+        border: none;
+        color: #fff;
+        transition: all 0.3s ease;
+        padding: 8px 20px;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+        .btn-primary:hover {
+            background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+            transform: translateY(-2px);
+        }
+
+    .chart-section {
+        margin-top: 20px;
+        padding: 20px;
+        background: #FFFFFF;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 1s ease-in-out;
+    }
+
+        .chart-section p, .table-section p, .summary-section p {
+            color: var(--text-color);
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-section canvas {
+            max-height: 400px;
+            width: 100%;
+        }
+
+    .summary-section {
+        margin-top: 20px;
+        padding: 20px;
+        background: #F5F5F5;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+        .summary-section p {
+            margin: 5px 0;
+            font-size: 1.1rem;
+        }
+
+        .summary-section span {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+    .table-section {
+        margin-top: 20px;
+        padding: 20px;
+        background: #FFFFFF;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        overflow-x: auto;
+    }
+
+    .table th, .table td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .table th {
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        color: #fff;
+    }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: rgba(255, 204, 102, 0.1);
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .content-container {
+            padding: 15px;
+            margin: 10px;
+        }
+
+        h3 {
+            font-size: 2rem;
+        }
+
+        .stat-card {
+            margin-bottom: 15px;
+        }
+
+        .filter-select, .form-control {
+            max-width: 100%;
+        }
+    }
+</style>
