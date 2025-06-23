@@ -1,1 +1,1249 @@
-﻿
+﻿<?php include 'app/views/shares/header.php'; ?>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách sản phẩm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #F5F5F5;
+        }
+
+        /* Phần Flash Sale */
+        .flash-sale-section {
+            margin-bottom: 2rem;
+        }
+
+            .flash-sale-section h2 {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #1A1A1A;
+                margin-bottom: 1rem;
+            }
+
+        .flash-sale-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .flash-sale-tags {
+            display: flex;
+            gap: 1rem;
+        }
+
+            .flash-sale-tags a {
+                color: #1A1A1A;
+                font-size: 0.9rem;
+                text-decoration: none;
+                padding: 0.3rem 0.75rem;
+                border-radius: 5px;
+                transition: background-color 0.3s ease;
+            }
+
+                .flash-sale-tags a:hover {
+                    background-color: #E5E5E5;
+                }
+
+        .flash-sale-timer {
+            display: flex;
+            align-items: center;
+            background-color: #FFF3E0;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            color: #1A1A1A;
+        }
+
+            .flash-sale-timer .time-box {
+                background-color: #FFFFFF;
+                color: #E43939;
+                padding: 0.2rem 0.5rem;
+                margin: 0 0.2rem;
+                border-radius: 3px;
+                font-weight: 500;
+            }
+
+        .flash-sale-product {
+            position: relative;
+            border: none;
+            border-radius: 8px;
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: box-shadow 0.3s ease;
+            height: 360px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+            .flash-sale-product:hover {
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            }
+
+            .flash-sale-product img {
+                width: 100%;
+                height: 180px;
+                object-fit: contain;
+                object-position: center;
+                background-color: #FFFFFF;
+                padding: 15px;
+            }
+
+            .flash-sale-product .card-body {
+                padding: 1rem;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+            .flash-sale-product .card-title {
+                font-size: 0.95rem;
+                font-weight: 500;
+                color: #1A1A1A;
+                margin-bottom: 0.5rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .flash-sale-product .price {
+                font-size: 1rem;
+                font-weight: 700;
+                color: #E43939;
+                margin-bottom: 0.25rem;
+            }
+
+            .flash-sale-product .old-price {
+                font-size: 0.85rem;
+                color: #AAAAAA;
+                text-decoration: line-through;
+                margin-bottom: 0.25rem;
+            }
+
+            .flash-sale-product .discount {
+                font-size: 0.75rem;
+                color: #E43939;
+            }
+
+            .flash-sale-product .stock-status {
+                font-size: 0.75rem;
+                color: #E43939;
+                background-color: #FFEDED;
+                padding: 0.2rem 0.5rem;
+                border-radius: 3px;
+                display: inline-block;
+            }
+
+            .flash-sale-product .btn-primary {
+                background-color: #007BFF;
+                border-color: #007BFF;
+                color: #FFFFFF;
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+                border-radius: 5px;
+            }
+
+                .flash-sale-product .btn-primary:hover {
+                    background-color: #0056b3;
+                    border-color: #0056b3;
+                }
+
+        /* Phần danh sách sản phẩm */
+        .product-grid {
+            margin-top: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .product-card {
+            border: none;
+            border-radius: 8px;
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: box-shadow 0.3s ease;
+            height: 420px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+            .product-card:hover {
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            }
+
+            .product-card img {
+                width: 100%;
+                height: 200px;
+                object-fit: contain;
+                object-position: center;
+                background-color: #FFFFFF;
+                padding: 15px;
+            }
+
+            .product-card .card-body {
+                padding: 1rem;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+            .product-card .card-title {
+                font-size: 1rem;
+                font-weight: 500;
+                color: #1A1A1A;
+                margin-bottom: 0.5rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+                .product-card .card-title a {
+                    color: #1A1A1A;
+                    text-decoration: none;
+                }
+
+                    .product-card .card-title a:hover {
+                        color: #007BFF;
+                    }
+
+            .product-card .card-text {
+                font-size: 0.85rem;
+                color: #555555;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: -webkit-box;
+                -webkit-line-clamp: 1;
+                -webkit-box-orient: vertical;
+                margin-bottom: 0.5rem;
+            }
+
+            .product-card .price {
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: #E43939;
+                margin-bottom: 0.25rem;
+            }
+
+            .product-card .category {
+                font-size: 0.75rem;
+                color: #555555;
+                margin-bottom: 0.5rem;
+            }
+
+            .product-card .discount-badge {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background-color: #FFEDED;
+                color: #E43939;
+                padding: 0.2rem 0.5rem;
+                border-radius: 3px;
+                font-size: 0.7rem;
+                font-weight: 500;
+                border: 1px solid #E43939;
+            }
+
+            .product-card .btn {
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+                border-radius: 5px;
+            }
+
+            .product-card .btn-primary {
+                background-color: #007BFF;
+                border-color: #007BFF;
+                color: #FFFFFF;
+            }
+
+                .product-card .btn-primary:hover {
+                    background-color: #0056b3;
+                    border-color: #0056b3;
+                }
+
+            .product-card .btn-warning {
+                background-color: #FFC107;
+                border-color: #FFC107;
+                color: #1A1A1A;
+            }
+
+                .product-card .btn-warning:hover {
+                    background-color: #FFCA2C;
+                    border-color: #FFCA2C;
+                }
+
+            .product-card .btn-danger {
+                background-color: #E43939;
+                border-color: #E43939;
+            }
+
+                .product-card .btn-danger:hover {
+                    background-color: #C82333;
+                    border-color: #C82333;
+                }
+
+        .add-product-btn, .view-users-btn {
+            background-color: #FFC107;
+            color: #1A1A1A;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+            .add-product-btn:hover, .view-users-btn:hover {
+                background-color: #FFCA2C;
+            }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin-bottom: 1.5rem;
+        }
+
+        .carousel {
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .carousel-item {
+            position: relative;
+        }
+
+            .carousel-item img {
+                width: 100%;
+                height: 300px;
+                object-fit: cover;
+                object-position: center;
+                max-height: 300px;
+            }
+
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            padding: 15px;
+        }
+
+        .carousel-control-prev:hover .carousel-control-prev-icon,
+        .carousel-control-next:hover .carousel-control-next-icon {
+            background-color: #FFC107;
+        }
+
+        .carousel-indicators button {
+            background-color: #AAAAAA;
+            border-radius: 50%;
+            width: 10px;
+            height: 10px;
+        }
+
+        .carousel-indicators .active {
+            background-color: #FFC107;
+        }
+
+        .modal-content {
+            border-radius: 8px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            background-color: #F5F5F5;
+            color: #1A1A1A;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+            .modal-body img {
+                width: 100%;
+                max-height: 250px;
+                object-fit: contain;
+                background-color: #FFFFFF;
+                padding: 15px;
+                border-radius: 5px;
+            }
+
+            .modal-body .card-title {
+                font-size: 1.25rem;
+                font-weight: 500;
+                color: #1A1A1A;
+                margin-bottom: 0.75rem;
+            }
+
+            .modal-body .card-text {
+                font-size: 0.85rem;
+                color: #555555;
+                margin-bottom: 0.75rem;
+            }
+
+            .modal-body .price {
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: #E43939;
+                margin-bottom: 0.75rem;
+            }
+
+            .modal-body .category {
+                font-size: 0.8rem;
+                color: #555555;
+                margin-bottom: 0.75rem;
+            }
+
+            .modal-body .btn-success {
+                background-color: #FFC107;
+                border-color: #FFC107;
+                color: #1A1A1A;
+                font-weight: 500;
+                padding: 0.5rem 1rem;
+                border-radius: 5px;
+            }
+
+                .modal-body .btn-success:hover {
+                    background-color: #FFCA2C;
+                    border-color: #FFCA2C;
+                }
+
+        .filter-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+            .filter-section select {
+                width: 200px;
+                border-radius: 5px;
+                border: 1px solid #E5E5E5;
+                padding: 0.5rem;
+                font-size: 0.9rem;
+            }
+
+                .filter-section select:focus {
+                    border-color: #FFC107;
+                    box-shadow: none;
+                }
+
+        .history-section {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+
+            .history-section h2 {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #1A1A1A;
+                margin-bottom: 1rem;
+            }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .history-empty {
+            text-align: center;
+            padding: 2rem;
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+            .history-empty p {
+                font-size: 1rem;
+                color: #555555;
+                margin-bottom: 0;
+            }
+
+        .history-item {
+            border: none;
+            border-radius: 8px;
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: box-shadow 0.3s ease;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+            .history-item:hover {
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            }
+
+            .history-item img {
+                width: 100%;
+                height: 150px;
+                object-fit: contain;
+                object-position: center;
+                background-color: #FFFFFF;
+                padding: 15px;
+            }
+
+            .history-item .card-body {
+                padding: 1rem;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+            .history-item .card-title {
+                font-size: 1rem;
+                font-weight: 500;
+                color: #1A1A1A;
+                margin-bottom: 0.5rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .history-item .price {
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: #E43939;
+                margin-bottom: 0.25rem;
+            }
+
+        .clear-history-btn {
+            background-color: #E43939;
+            border-color: #E43939;
+            color: #FFFFFF;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+            .clear-history-btn:hover {
+                background-color: #C82333;
+                border-color: #C82333;
+            }
+
+        .privilege-section {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+
+            .privilege-section h2 {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #1A1A1A;
+                margin-bottom: 1rem;
+            }
+
+        .privilege-item {
+            border: 1px solid #E5E5E5;
+            border-radius: 8px;
+            background-color: #FFFFFF;
+            padding: 1rem;
+            text-align: center;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+            .privilege-item img {
+                max-width: 100%;
+                height: 150px;
+                object-fit: contain;
+                margin-bottom: 0.5rem;
+            }
+
+            .privilege-item .product-name {
+                font-size: 1rem;
+                font-weight: 500;
+                color: #1A1A1A;
+                margin-bottom: 0.5rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .privilege-item .price {
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: #E43939;
+                margin-bottom: 0.25rem;
+            }
+
+            .privilege-item .old-price {
+                font-size: 0.85rem;
+                color: #AAAAAA;
+                text-decoration: line-through;
+                margin-bottom: 0.25rem;
+            }
+
+            .privilege-item .discount {
+                font-size: 0.75rem;
+                color: #E43939;
+            }
+
+            .privilege-item .btn-primary {
+                background-color: #007BFF;
+                border-color: #007BFF;
+                color: #FFFFFF;
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+                border-radius: 5px;
+            }
+
+                .privilege-item .btn-primary:hover {
+                    background-color: #0056b3;
+                    border-color: #0056b3;
+                }
+
+        .xiaomi-section {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+
+            .xiaomi-section .banner {
+                border-radius: 8px;
+                overflow: hidden;
+                position: relative;
+                height: 200px;
+            }
+
+                .xiaomi-section .banner img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    object-position: center;
+                }
+
+                .xiaomi-section .banner .overlay {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.3);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                    .xiaomi-section .banner .overlay .btn {
+                        background-color: #FFC107;
+                        color: #1A1A1A;
+                        font-weight: 500;
+                        padding: 0.5rem 1rem;
+                        border-radius: 5px;
+                        text-decoration: none;
+                        transition: background-color 0.3s ease;
+                    }
+
+                        .xiaomi-section .banner .overlay .btn:hover {
+                            background-color: #FFCA2C;
+                        }
+
+        .social-section {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+
+            .social-section h2 {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #1A1A1A;
+                margin-bottom: 1rem;
+            }
+
+        .social-item {
+            border: 1px solid #E5E5E5;
+            border-radius: 8px;
+            background-color: #FFFFFF;
+            padding: 1rem;
+            text-align: center;
+            height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: box-shadow 0.3s ease;
+        }
+
+            .social-item:hover {
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            }
+
+            .social-item img {
+                max-width: 100%;
+                height: 150px;
+                object-fit: contain;
+                margin-bottom: 0.5rem;
+            }
+
+            .social-item .ad-text {
+                font-size: 0.9rem;
+                color: #1A1A1A;
+                margin-bottom: 0.5rem;
+            }
+
+            .social-item .btn {
+                background-color: #FFC107;
+                color: #1A1A1A;
+                font-weight: 500;
+                padding: 0.5rem 1rem;
+                border-radius: 5px;
+                text-decoration: none;
+                transition: background-color 0.3s ease;
+            }
+
+                .social-item .btn:hover {
+                    background-color: #FFCA2C;
+                }
+
+        .search-suggestion {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+
+            .search-suggestion h2 {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #1A1A1A;
+                margin-bottom: 1rem;
+            }
+
+            .search-suggestion .suggestion-list {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .search-suggestion .suggestion-item {
+                background-color: #F5F5F5;
+                padding: 0.5rem 1rem;
+                border-radius: 20px;
+                font-size: 0.9rem;
+                color: #1A1A1A;
+                text-decoration: none;
+                transition: background-color 0.3s ease;
+            }
+
+                .search-suggestion .suggestion-item:hover {
+                    background-color: #E5E5E5;
+                }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Slider -->
+        <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#productCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                <button type="button" data-bs-target="#productCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                <button type="button" data-bs-target="#productCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            </div>
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img src="https://cdnv2.tgdd.vn/mwg-static/tgdd/Banner/20/64/206436a706fa9f3ce053995675b24ace.png" alt="Smartphone Collection" class="d-block w-100">
+                </div>
+                <div class="carousel-item">
+                    <img src="https://cdnv2.tgdd.vn/mwg-static/tgdd/Banner/23/05/23050828d3211ce7b91e92473a3690b3.jpg" alt="Phone Deals" class="d-block w-100">
+                </div>
+                <div class="carousel-item">
+                    <img src="https://cdnv2.tgdd.vn/mwg-static/tgdd/Banner/5a/44/5a44716d728bb5635b909cbd35fd85bd.png" alt="Tech Innovations" class="d-block w-100">
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+
+        <!-- Phần Flash Sale -->
+        <div class="flash-sale-section">
+            <h2>Khuyến mãi Online</h2>
+            <div class="flash-sale-header">
+                <div class="flash-sale-tags">
+                    <a href="#">Điện Thoại</a>
+                    <a href="#">Apple</a>
+                    <a href="#">Laptop</a>
+                    <a href="#">Phụ Kiện</a>
+                    <a href="#">Đồng Hồ</a>
+                    <a href="#">PC, Máy In</a>
+                </div>
+                <div class="flash-sale-timer">
+                    <span>Chỉ còn:</span>
+                    <span class="time-box">12</span>:<span class="time-box">00</span>:<span class="time-box">00</span>
+                    <span>Sắp diễn ra 17:00</span>
+                    <span>Sắp diễn ra 20:00</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-4">
+                    <div class="flash-sale-product">
+                        <img src="https://cdn.tgdd.vn/Products/Images/42/323567/vivo-v30e-nau-thumb-1-600x600.jpg" alt="vivo Y300 5G">
+                        <div class="card-body">
+                            <h5 class="card-title">vivo Y300 5G</h5>
+                            <p class="price">2.900.000đ</p>
+                            <p class="old-price">6.900.000đ</p>
+                            <p class="discount">Giảm 58%</p>
+                            <p class="stock-status">Còn 48/50 suất</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-4">
+                    <div class="flash-sale-product">
+                        <img src="https://cdn.tgdd.vn/Products/Images/522/325524/ipad-air-11-inch-m2-lte-purple-thumb-600x600.jpg" alt="iPad Air 6">
+                        <div class="card-body">
+                            <h5 class="card-title">iPad Air 6 M2 11 inch WiFi 1TB</h5>
+                            <p class="price">20.500.000đ</p>
+                            <p class="old-price">23.900.000đ</p>
+                            <p class="discount">Giảm 14%</p>
+                            <p class="stock-status">Còn 29/50 suất</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-4">
+                    <div class="flash-sale-product">
+                        <img src="https://cdnv2.tgdd.vn/mwg-static/tgdd/Products/Images/44/321193/dell-inspiron-15-3520-i5-71027003-thumb-638754902795306932-600x600.jpg" alt="Dell Inspiron">
+                        <div class="card-body">
+                            <h5 class="card-title">Dell Inspiron 15 3520 (CG6)</h5>
+                            <p class="price">15.900.000đ</p>
+                            <p class="old-price">18.400.000đ</p>
+                            <p class="discount">Giảm 14%</p>
+                            <p class="stock-status">Còn 40/50 suất</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-4">
+                    <div class="flash-sale-product">
+                        <img src="https://cdn.tgdd.vn/Products/Images/7264/199493/casio-ae-1200wh-1avdf-den-nt-600x600.jpg" alt="Casio AE-1200WH">
+                        <div class="card-body">
+                            <h5 class="card-title">Casio 42 mm Nam AE-1200WH-1AVDF</h5>
+                            <p class="price">1.900.000đ</p>
+                            <p class="old-price">2.400.000đ</p>
+                            <p class="discount">Giảm 21%</p>
+                            <p class="stock-status">Còn 48/50 suất</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-4">
+                    <div class="flash-sale-product">
+                        <img src="https://cdnv2.tgdd.vn/mwg-static/tgdd/Products/Images/2162/328734/loa-bluetooth-sounarc-p1-portable-speaker-021024-051100-772-600x600.jpg" alt="Loa Sounarc P1">
+                        <div class="card-body">
+                            <h5 class="card-title">Loa Bluetooth Sounarc P1</h5>
+                            <p class="price">285.000đ</p>
+                            <p class="old-price">390.000đ</p>
+                            <p class="discount">Giảm 27%</p>
+                            <p class="stock-status">Còn 46/50 suất</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-4">
+                    <div class="flash-sale-product">
+                        <img src="https://cdn.tgdd.vn/Products/Images/7077/329159/apple-watch-s10-lte-42mm-vien-titanium-day-thep-thumb-2-600x600.jpg" alt="Apple Watch Series 9">
+                        <div class="card-body">
+                            <h5 class="card-title">Apple Watch Series 9 GPS 41mm</h5>
+                            <p class="price">7.290.000đ</p>
+                            <p class="old-price">10.400.000đ</p>
+                            <p class="discount">Giảm 30%</p>
+                            <p class="stock-status">Còn 56/60 suất</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Danh sách sản phẩm -->
+        <div class="product-grid">
+            <h1 class="title text-center">Danh sách sản phẩm</h1>
+            <div class="filter-section">
+                <select id="categoryFilter" class="form-select">
+                    <option value="">Tất cả danh mục</option>
+                    <?php foreach ($categories as $category): ?>
+                    <option value="<?php echo $category->id; ?>">
+                        <?php echo htmlspecialchars($category->name, ENT_QUOTES, 'UTF-8'); ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+                <div>
+                    <a href="/project1/Product/add" class="btn add-product-btn"><i class="fas fa-plus"></i> Thêm sản phẩm mới</a>
+                    <a href="/project1/?url=user" class="btn view-users-btn"><i class="fas fa-users"></i> Xem người dùng</a>
+                </div>
+            </div>
+            <div class="row" id="product-list">
+                <!-- Danh sách sản phẩm sẽ được tải từ API và hiển thị tại đây -->
+            </div>
+        </div>
+
+        <!-- Phần Lịch sử xem sản phẩm -->
+        <div class="history-section">
+            <div class="history-header">
+                <h2>Lịch sử xem sản phẩm</h2>
+                <button class="clear-history-btn" onclick="clearHistory()">Xóa lịch sử</button>
+            </div>
+            <div id="history-list" class="row">
+                <!-- Danh sách sản phẩm đã xem sẽ được thêm bằng JavaScript -->
+            </div>
+        </div>
+
+        <!-- Phần Sản phẩm Đặc Quyền -->
+        <div class="privilege-section">
+            <h2>Sản phẩm Đặc Quyền</h2>
+            <div class="row">
+                <?php
+                $discounted_products = array_filter($products, function($product) {
+                return isset($product->is_discounted) && $product->is_discounted == 1;
+                });
+                if (empty($discounted_products)): ?>
+                <div class="col-12">
+                    <div class="history-empty">
+                        <p>Chưa có sản phẩm giảm giá nào.</p>
+                    </div>
+                </div>
+                <?php else: ?>
+                <?php foreach ($discounted_products as $product): ?>
+                <div class="col-md-3 mb-4">
+                    <div class="privilege-item">
+                        <?php if ($product->image): ?>
+                        <img src="/project1/<?php echo htmlspecialchars($product->image, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($product->name, ENT_QUOTES, 'UTF-8'); ?>">
+                        <?php else: ?>
+                        <img src="https://via.placeholder.com/300x150?text=No+Image" alt="No Image">
+                        <?php endif; ?>
+                        <p class="product-name"><?php echo htmlspecialchars($product->name, ENT_QUOTES, 'UTF-8'); ?></p>
+                        <p class="price"><?php echo number_format(floatval($product->price), 0, ',', '.'); ?>đ</p>
+                        <?php if (isset($product->discount) && $product->discount > 0): ?>
+                        <p class="old-price"><?php echo number_format(floatval($product->price * (1 + $product->discount / 100)), 0, ',', '.'); ?>đ</p>
+                        <p class="discount">Giảm <?php echo $product->discount; ?>%</p>
+                        <?php else: ?>
+                        <p class="old-price"></p>
+                        <p class="discount"></p>
+                        <?php endif; ?>
+                        <a href="/project1/Product/addToCart/<?php echo $product->id; ?>" class="btn btn-primary">Mua ngay</a>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <!-- Phần Tuần lễ Xiaomi -->
+        <div class="xiaomi-section">
+            <div class="banner">
+                <img src="https://cdnv2.tgdd.vn/mwg-static/tgdd/Banner/10/aa/10aae8a0392c3648a636ced6736bc6ff.png" alt="Tuần lễ Xiaomi">
+                <div class="overlay">
+                    <a href="#" class="btn">Mua ngay</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phần Mạng xã hội thegioididong.com -->
+        <div class="social-section">
+            <h2>Mạng xã hội thegioididong.com</h2>
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <div class="social-item">
+                        <img src="https://cdnv2.tgdd.vn/mwg-static/common/News/Thumb/1571136/5g-908000o638838679819230671.jpg" alt="Trải nghiệm 5G Viettel">
+                        <p class="ad-text">Nhận 6GB data đổi thưởng 5G Viettel miễn phí, nhận ngay dán kính thời hạn sử dụng!</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="social-item">
+                        <img src="https://cdnv2.tgdd.vn/mwg-static/common/Common/iphone-quoc-te-la-gi-thumbnail1.jpg" alt="iPhone quóc tế là gì?">
+                        <p class="ad-text">iPhone quóc tế là gì? Có nên mua? Khác gì iPhone chính hãng, cách tay?</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="social-item">
+                        <img src="https://cdnv2.tgdd.vn/mwg-static/common/News/Thumb/1578091/game%20desk-222123638838521564175226.jpg" alt="Lật nhánh hay, rình ngay loa xịn">
+                        <p class="ad-text">Lật nhánh hay, rình ngay loa xịn: Tham gia minigame tại TGDD có cơ hội nhận loa Alpha Works miễn phí</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="social-item">
+                        <img src="https://cdnv2.tgdd.vn/mwg-static/common/Common/THUMB%20HO%CC%89I%20%C4%90A%CC%81P.jpg" alt="iCloud đã đầy?">
+                        <p class="ad-text">iCloud đã đầy? Tác hại, cách check iCloud và cách gỡ bỏ đơn giản</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phần Mời bạn cùng tìm kiếm -->
+        <div class="search-suggestion">
+            <h2>Mời bạn cùng tìm kiếm</h2>
+            <div class="suggestion-list">
+                <a href="#" class="suggestion-item">iphone 16</a>
+                <a href="#" class="suggestion-item">iphone 16 pro</a>
+                <a href="#" class="suggestion-item">iphone 16 pro max</a>
+                <a href="#" class="suggestion-item">Samsung Galaxy Tab S9</a>
+                <a href="#" class="suggestion-item">Lenovo Tab M11</a>
+                <a href="#" class="suggestion-item">iphone 15</a>
+                <a href="#" class="suggestion-item">iphone 15 plus</a>
+                <a href="#" class="suggestion-item">iphone 15 pro</a>
+                <a href="#" class="suggestion-item">tai nghe airpods</a>
+                <a href="#" class="suggestion-item">airpods 4</a>
+                <a href="#" class="suggestion-item">apple watch series 10</a>
+                <a href="#" class="suggestion-item">apple watch series 9</a>
+                <a href="#" class="suggestion-item">apple watch ultra 2</a>
+                <a href="#" class="suggestion-item">asus</a>
+                <a href="#" class="suggestion-item">laptop gaming</a>
+                <a href="#" class="suggestion-item">macbook air</a>
+                <a href="#" class="suggestion-item">macbook pro</a>
+                <a href="#" class="suggestion-item">Mac Studio M4</a>
+                <a href="#" class="suggestion-item">MacBook Air M4</a>
+                <a href="#" class="suggestion-item">airtag</a>
+                <a href="#" class="suggestion-item">loa jbl</a>
+                <a href="#" class="suggestion-item">tai nghe sony</a>
+                <a href="#" class="suggestion-item">loa marshall</a>
+                <a href="#" class="suggestion-item">bàn phím gaming</a>
+                <a href="#" class="suggestion-item">chuột logitech</a>
+                <a href="#" class="suggestion-item">loa harman kardon</a>
+                <a href="#" class="suggestion-item">đồng hồ shock</a>
+                <a href="#" class="suggestion-item">đồng hồ điện tử viettel</a>
+                <a href="#" class="suggestion-item">itel</a>
+                <a href="#" class="suggestion-item">orient star</a>
+                <a href="#" class="suggestion-item">đồng hồ thụy sỹ</a>
+                <a href="#" class="suggestion-item">đồng hồ baby g</a>
+                <a href="#" class="suggestion-item">macbook</a>
+                <a href="#" class="suggestion-item">macbook pro m4+</a>
+                <a href="#" class="suggestion-item">samsung s25</a>
+                <a href="#" class="suggestion-item">samsung s25 plus</a>
+                <a href="#" class="suggestion-item">samsung galaxy s25 ultra</a>
+                <a href="#" class="suggestion-item">iphone 16e</a>
+                <a href="#" class="suggestion-item">iphone 14</a>
+                <a href="#" class="suggestion-item">Samsung Galaxy Tab A</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal chi tiết sản phẩm -->
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productModalLabel">Chi tiết sản phẩm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <img id="modal-image" src="" alt="Product Image" class="img-fluid">
+                        </div>
+                        <div class="col-md-6">
+                            <h3 class="card-title" id="modal-name"></h3>
+                            <p class="card-text" id="modal-description"></p>
+                            <p class="price" id="modal-price"></p>
+                            <p class="category" id="modal-category"></p>
+                            <div class="d-flex justify-content-start gap-3">
+                                <a id="modal-add-to-cart" href="#" class="btn btn-success"><i class="fas fa-cart-plus"></i> Thêm vào giỏ hàng</a>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    // Định nghĩa base URL của ứng dụng
+                    const baseUrl = '/project1/';
+
+                    // Hàm tải danh sách sản phẩm
+                    function loadProducts(categoryId = '') {
+                        let apiUrl = baseUrl + 'api/product';
+                        if (categoryId) {
+                            apiUrl += `?category_id=${categoryId}`;
+                        }
+                        fetch(apiUrl)
+                            .then(response => response.json())
+                            .then(data => {
+                                const productList = document.getElementById('product-list');
+                                productList.innerHTML = '';
+                                data.forEach(product => {
+                                    const imageUrl = product.image ? baseUrl + product.image : 'https://via.placeholder.com/300x180?text=No+Image';
+                                    const productItem = document.createElement('div');
+                                    productItem.className = 'col-lg-4 col-md-6 col-sm-12 mb-4';
+                                    productItem.id = `product-${product.id}`;
+                                    productItem.innerHTML = `
+                                        <div class="card product-card">
+                                            ${product.discount && product.discount > 0 ? `<span class="discount-badge">Giảm ${product.discount}%</span>` : ''}
+                                            <img src="${imageUrl}" alt="${product.name}" class="card-img-top">
+                                            <div class="card-body">
+                                                <h5 class="card-title">
+                                                    <a href="#" data-bs-toggle="modal" data-bs-target="#productModal"
+                                                       data-id="${product.id}"
+                                                       data-name="${product.name}"
+                                                       data-description="${product.description}"
+                                                       data-price="${product.price}"
+                                                       data-category="${product.category_name}"
+                                                       data-image="${imageUrl}">
+                                                        ${product.name}
+                                                    </a>
+                                                </h5>
+                                                <p class="card-text">${product.description}</p>
+                                                <p class="price">${Number(product.price).toLocaleString('vi-VN')}đ</p>
+                                                <p class="category">${product.category_name}</p>
+                                                <div class="d-flex justify-content-between gap-2">
+                                                    <a href="${baseUrl}Product/addToCart/${product.id}" class="btn btn-primary btn-sm"><i class="fas fa-cart-plus"></i> Thêm vào giỏ hàng</a>
+                                                    <a href="${baseUrl}Product/edit/${product.id}" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></a>
+                                                    <button class="btn btn-danger btn-sm" onclick="deleteProduct(${product.id})"><i class="fas fa-trash"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                    productList.appendChild(productItem);
+                                });
+                            })
+                            .catch(error => {
+                                console.error('Lỗi khi lấy danh sách sản phẩm:', error);
+                                alert('Không thể tải danh sách sản phẩm.');
+                            });
+                    }
+
+                    // Tải danh sách sản phẩm ban đầu
+                    loadProducts();
+
+                    // Lọc sản phẩm theo danh mục
+                    document.getElementById('categoryFilter').addEventListener('change', function() {
+                        loadProducts(this.value);
+                    });
+
+                    // Xử lý modal chi tiết sản phẩm
+                    const modal = document.getElementById('productModal');
+                    const historyList = document.getElementById('history-list');
+
+                    function loadHistory() {
+                        const history = JSON.parse(localStorage.getItem('viewedProducts')) || [];
+                        historyList.innerHTML = '';
+                        if (history.length === 0) {
+                            historyList.innerHTML = `
+                                <div class="col-12">
+                                    <div class="history-empty">
+                                        <p>Bạn chưa xem sản phẩm nào.</p>
+                                    </div>
+                                </div>
+                            `;
+                            return;
+                        }
+                        history.slice(0, 5).forEach(product => {
+                            const historyItem = `
+                                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                                    <div class="card history-item">
+                                        <img src="${product.image}" alt="${product.name}" class="card-img-top">
+                                        <div class="card-body">
+                                            <h5 class="card-title">${product.name}</h5>
+                                            <p class="price">${product.price}đ</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            historyList.insertAdjacentHTML('beforeend', historyItem);
+                        });
+                    }
+
+                    function saveToHistory(product) {
+                        let history = JSON.parse(localStorage.getItem('viewedProducts')) || [];
+                        history = history.filter(item => item.id !== product.id);
+                        history.unshift(product);
+                        localStorage.setItem('viewedProducts', JSON.stringify(history));
+                        loadHistory();
+                    }
+
+                    function clearHistory() {
+                        if (confirm('Bạn có chắc chắn muốn xóa toàn bộ lịch sử xem sản phẩm?')) {
+                            localStorage.removeItem('viewedProducts');
+                            loadHistory();
+                        }
+                    }
+
+                    modal.addEventListener('show.bs.modal', function (event) {
+                        const button = event.relatedTarget;
+                        const id = button.getAttribute('data-id');
+                        const name = button.getAttribute('data-name');
+                        const description = button.getAttribute('data-description');
+                        const price = button.getAttribute('data-price');
+                        const category = button.getAttribute('data-category');
+                        const image = button.getAttribute('data-image');
+
+                        document.getElementById('modal-name').textContent = name;
+                        document.getElementById('modal-description').innerHTML = description.replace(/\n/g, '<br>');
+                        document.getElementById('modal-price').textContent = Number(price).toLocaleString('vi-VN') + 'đ';
+                        document.getElementById('modal-category').textContent = 'Danh mục: ' + (category || 'Chưa có danh mục');
+                        document.getElementById('modal-image').src = image;
+                        document.getElementById('modal-add-to-cart').href = baseUrl + 'Product/addToCart/' + id;
+
+                        const product = { id, name, price, image };
+                        saveToHistory(product);
+                    });
+
+                    loadHistory();
+                });
+
+         // Hàm xóa sản phẩm
+        function deleteProduct(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+                const baseUrl = '/project1/'; // Điều chỉnh nếu cần
+                const apiUrl = `${baseUrl}api/product/${id}`;
+                console.log('Gửi yêu cầu xóa tới:', apiUrl);
+
+                fetch(apiUrl, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.message || `Lỗi server: ${response.status}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+                    if (data.message === 'Product deleted successfully') {
+                        const productElement = document.getElementById(`product-${id}`);
+                        if (productElement) {
+                            productElement.remove();
+                        }
+                        // Cập nhật lại lịch sử xem
+                        let history = JSON.parse(localStorage.getItem('viewedProducts')) || [];
+                        history = history.filter(item => item.id != id);
+                        localStorage.setItem('viewedProducts', JSON.stringify(history));
+                        loadHistory();
+                        alert('Xóa sản phẩm thành công!');
+                    } else {
+                        alert('Xóa sản phẩm thất bại: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi khi xóa sản phẩm:', error);
+                    alert('Không thể xóa sản phẩm: ' + error.message);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
+<?php include 'app/views/shares/footer.php'; ?>
