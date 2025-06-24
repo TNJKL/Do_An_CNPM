@@ -1,1 +1,1061 @@
-﻿
+﻿@using WebSiteBanMoHinh.Repository
+@using WebSiteBanMoHinh.Resources
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Identity
+@inject LanguageService ShareLocallizer
+@inject UserManager<AppUserModel> UserManager
+@inject DataContext _context
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Anime Figure Shop - Premium Collectibles">
+    <meta name="author" content="TAPTHENHOM">
+    <title>HUTECH FIGURE</title>
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
+    <link href="~/css/prettyPhoto.css" rel="stylesheet">
+    <link href="~/css/price-range.css" rel="stylesheet">
+    <link href="~/css/animate.css" rel="stylesheet">
+    <link href="~/css/main.css" rel="stylesheet">
+    <link href="~/css/responsive.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #d4a017;
+            --secondary-color: #ffcc33;
+            --accent-color: #ffcc33;
+            --text-color: #333333;
+            --hover-color: #cc9900;
+            --background-color: #ffffff;
+            --footer-bg-color: #1C2526;
+            --slider-bg-color: #f5e6d3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        main {
+            flex: 1 0 auto;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .header_top {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            padding: 15px 0;
+            color: white;
+            border-bottom: 2px solid var(--hover-color);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+        }
+
+            .header_top .container {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            .header_top .row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 20px;
+            }
+
+        .logo img {
+            max-height: 90px;
+            transition: transform 0.3s ease;
+        }
+
+            .logo img:hover {
+                transform: scale(1.1);
+            }
+
+        .search_box {
+            display: flex;
+            align-items: center;
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+            gap: 5px; /* Giảm gap để gắn kết hơn */
+            flex-direction: row;
+        }
+
+            .search_box input {
+                background-color: var(--background-color);
+                border: 2px solid var(--secondary-color);
+                border-radius: 40px;
+                padding: 0 15px; /* Chỉnh padding để đồng đều */
+                color: var(--text-color);
+                width: calc(100% - 48px); /* Điều chỉnh để cân đối với nút mic */
+                font-size: 1em;
+                height: 42px; /* Chiều cao cố định */
+                line-height: 42px; /* Căn giữa nội dung */
+                transition: all 0.3s ease;
+                box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            }
+
+                .search_box input:focus {
+                    outline: none;
+                    border-color: var(--primary-color);
+                    box-shadow: 0 0 12px rgba(212, 160, 23, 0.4);
+                }
+
+                .search_box input::placeholder {
+                    color: var(--text-color);
+                    opacity: 0.7;
+                    font-style: italic;
+                }
+
+                .search_box input:hover {
+                    border-color: var(--hover-color);
+                }
+
+            .search_box .mic-button {
+                background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+                border: none;
+                border-radius: 50%;
+                width: 42px; /* Đồng bộ với chiều cao input */
+                height: 42px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+                order: 1;
+            }
+
+                .search_box .mic-button:hover {
+                    background: linear-gradient(135deg, var(--hover-color), var(--primary-color));
+                    transform: scale(1.1);
+                    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+                }
+
+                .search_box .mic-button i {
+                    color: white;
+                    font-size: 1.2em;
+                }
+
+        .shop-menu ul {
+            list-style: none;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin: 0;
+        }
+
+        .shop-menu li {
+            margin-left: 15px;
+        }
+
+        .shop-menu a {
+            color: var(--text-color);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #ffcc33, #d4a017);
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+            .shop-menu a:hover {
+                color: white;
+                background: linear-gradient(135deg, #cc9900, #b38f00);
+                border-color: var(--hover-color);
+                transform: translateY(-2px);
+            }
+
+        .shop-menu i {
+            font-size: 1.3em;
+            margin-right: 6px;
+        }
+
+        #cartCount {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #ff4d4d;
+            color: white;
+            font-size: 0.8em;
+            font-weight: bold;
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
+            text-align: center;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+            #cartCount:hover {
+                transform: scale(1.1);
+            }
+
+        .header-bottom {
+            background-color: var(--secondary-color);
+            padding: 10px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+            .header-bottom .container {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+        .mainmenu .navbar-nav {
+            display: flex;
+            list-style: none;
+            align-items: center;
+        }
+
+        .navbar-nav li {
+            position: relative;
+        }
+
+        .mainmenu .navbar-nav li a.active {
+            color: chocolate;
+        }
+
+        .navbar-nav li a {
+            color: var(--text-color);
+            font-weight: 500;
+            padding: 10px 15px;
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+            .navbar-nav li a:hover {
+                color: var(--primary-color);
+                background-color: rgba(0, 0, 0, 0.05);
+                border-radius: 5px;
+            }
+
+        .sub-menu {
+            display: none;
+            position: absolute;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            min-width: 200px;
+            top: 100%;
+            left: 0;
+        }
+
+        .navbar-nav li:hover .sub-menu {
+            display: block;
+        }
+
+        .sub-menu li a {
+            padding: 10px 15px;
+            color: var(--text-color);
+        }
+
+            .sub-menu li a:hover {
+                background-color: var(--secondary-color);
+                color: var(--primary-color);
+            }
+
+        .language-switcher .btn {
+            background: transparent;
+            border: 1px solid var(--text-color);
+            color: var(--text-color);
+            padding: 5px 15px;
+        }
+
+        .language-switcher .dropdown-menu {
+            min-width: 80px;
+            text-align: center;
+        }
+
+        @@media screen and (max-width: 991px) {
+            .header_top .row {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .search_box {
+                max-width: 100%;
+                flex-direction: row;
+                justify-content: center;
+            }
+
+            .shop-menu ul {
+                justify-content: center;
+            }
+
+            .header-bottom .row {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .mainmenu .navbar-nav {
+                flex-direction: column;
+            }
+
+            .navbar-nav li {
+                text-align: center;
+            }
+
+            .sub-menu {
+                position: static;
+                box-shadow: none;
+                background-color: var(--secondary-color);
+            }
+
+            .language-switcher {
+                margin-top: 10px;
+            }
+        }
+
+        @@media screen and (max-width: 767px) {
+            .logo img {
+                max-height: 50px;
+            }
+
+            .search_box {
+                flex-direction: row;
+                gap: 5px;
+            }
+
+                .search_box input {
+                    padding: 0 10px;
+                    font-size: 0.9em;
+                    height: 36px;
+                }
+
+                .search_box .mic-button {
+                    width: 36px;
+                    height: 36px;
+                }
+
+                    .search_box .mic-button i {
+                        font-size: 1em;
+                    }
+
+            .shop-menu li {
+                margin-left: 10px;
+            }
+
+            .navbar-nav li a {
+                padding: 8px 10px;
+            }
+        }
+
+        #footer {
+            flex-shrink: 0;
+        }
+
+        .footer-top {
+            background: var(--footer-bg-color);
+            padding: 40px 0;
+            color: white;
+        }
+
+        .footer-bottom {
+            background-color: var(--footer-bg-color);
+            padding: 20px 0;
+            color: white;
+            border-top: 1px solid rgba(255, 255, 250, 0.1);
+            text-align: center;
+        }
+
+            .footer-bottom p {
+                color: white;
+                margin: 0;
+            }
+
+        .single-widget h2 {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            text-transform: uppercase;
+        }
+
+        .single-widget ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+            .single-widget ul li a {
+                color: white;
+                font-size: 0.9em;
+                transition: all 0.3s ease;
+                display: block;
+                padding: 5px 0;
+            }
+
+                .single-widget ul li a:hover {
+                    color: var(--accent-color);
+                }
+
+        .companyinfo h2 {
+            color: white;
+            font-size: 2em;
+        }
+
+        .companyinfo p, .address p {
+            color: white;
+            font-size: 0.9em;
+        }
+
+        .payment-methods img {
+            max-height: 30px;
+            margin: 5px;
+        }
+
+        .support-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+            .support-button:hover {
+                transform: scale(1.1);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            }
+
+        .phone-button {
+            background-color: #ff4d4d;
+        }
+
+        .messenger-button {
+            background-color: #0084ff;
+        }
+
+        .zalo-button {
+            background-color: #00aaff;
+        }
+
+        .scroll-up-button {
+            background-color: #666;
+        }
+
+            .scroll-up-button i {
+                font-size: 20px;
+            }
+
+        .service-bar {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            padding: 15px 0;
+            color: var(--text-color);
+            border-top: 2px solid var(--hover-color);
+            border-bottom: 2px solid var(--hover-color);
+        }
+
+            .service-bar .container {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            .service-bar .row {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+
+        .service-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1em;
+            font-weight: 500;
+            text-align: center;
+        }
+
+            .service-item i {
+                font-size: 1.5em;
+                color: var(--text-color);
+            }
+
+            .service-item span {
+                display: block;
+                font-size: 0.9em;
+                color: var(--text-color);
+            }
+
+        .service-item {
+            font-size: 0.9em;
+        }
+
+            .service-item i {
+                font-size: 1.3em;
+            }
+        /* Đảm bảo search_box là bối cảnh định vị */
+        .search_box {
+            position: relative; /* Tạo bối cảnh định vị cho suggestions-list */
+            display: flex;
+            align-items: center;
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+            gap: 5px;
+            flex-direction: row;
+        }
+
+        /* Định dạng danh sách gợi ý */
+        .suggestions-list {
+            max-height: 400px;
+            overflow-y: auto;
+            background-color: var(--background-color);
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            margin-top: 5px; /* Khoảng cách nhỏ giữa ô tìm kiếm và danh sách */
+            border: 1px solid var(--secondary-color);
+            transition: all 0.3s ease;
+            width: calc(100% - 48px); /* Chiều rộng khớp với ô tìm kiếm, trừ nút mic */
+            position: absolute; /* Định vị tuyệt đối */
+            left: 0; /* Căn trái với ô tìm kiếm */
+            top: 100%; /* Đặt ngay dưới ô tìm kiếm */
+        }
+
+            /* Định dạng từng mục trong danh sách */
+            .suggestions-list .list-group-item {
+                display: flex;
+                align-items: center;
+                padding: 12px 15px;
+                border: none;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+                background-color: transparent;
+                transition: background-color 0.3s ease, transform 0.2s ease;
+            }
+
+                .suggestions-list .list-group-item:last-child {
+                    border-bottom: none;
+                }
+
+                .suggestions-list .list-group-item:hover {
+                    background-color: var(--secondary-color);
+                    transform: translateX(5px);
+                }
+
+                .suggestions-list .list-group-item img {
+                    width: 50px;
+                    height: 50px;
+                    object-fit: cover;
+                    border-radius: 8px;
+                    border: 1px solid var(--primary-color);
+                    transition: transform 0.3s ease;
+                }
+
+                    .suggestions-list .list-group-item img:hover {
+                        transform: scale(1.1);
+                    }
+
+                .suggestions-list .list-group-item .fw-bold {
+                    color: var(--text-color);
+                    font-size: 1em;
+                    font-weight: 600;
+                    transition: color 0.3s ease;
+                }
+
+                .suggestions-list .list-group-item .text-muted {
+                    color: var(--primary-color);
+                    font-size: 0.85em;
+                    font-style: italic;
+                }
+
+                .suggestions-list .list-group-item .fw-bold strong {
+                    color: var(--hover-color);
+                    font-weight: 700;
+                }
+
+            /* Thanh cuộn */
+            .suggestions-list::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            .suggestions-list::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 12px;
+            }
+
+            .suggestions-list::-webkit-scrollbar-thumb {
+                background: var(--primary-color);
+                border-radius: 12px;
+                transition: background 0.3s ease;
+            }
+
+                .suggestions-list::-webkit-scrollbar-thumb:hover {
+                    background: var(--hover-color);
+                }
+
+        /* Phản hồi trên màn hình nhỏ */
+        media screen and (max-width: 767px) {
+            .suggestions-list
+
+        {
+            max-height: 300px;
+            border-radius: 8px;
+        }
+
+        .suggestions-list .list-group-item {
+            padding: 10px 12px;
+        }
+
+            .suggestions-list .list-group-item img {
+                width: 40px;
+                height: 40px;
+            }
+
+            .suggestions-list .list-group-item .fw-bold {
+                font-size: 0.9em;
+            }
+
+            .suggestions-list .list-group-item .text-muted {
+                font-size: 0.8em;
+            }
+
+        }
+    </style>
+
+    <link rel="shortcut icon" href="images/ico/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="images/ico/apple-touch-icon-57-precomposed.png">
+
+    <div id="fb-root"></div>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v22.0"></script>
+</head>
+
+<body>
+    <header id="header">
+        <div class="header_top">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-3 col-md-3 col-sm-12">
+                        <div class="logo">
+                            <a asp-controller="Home" asp-action="Index">
+                                <img src="https://bestanimeshop.com/cdn/shop/files/BAS_Cat_Logo_500x.png?v=1708094044" alt="Anime Treasure" class="img-fluid">
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 col-md-6 col-sm-12 search_box_container">
+                        <form asp-controller="Product" asp-action="Search" method="get">
+                            <div class="search_box my-2 my-lg-0">
+                                <input type="text" id="searchBox" name="searchTerm" class="form-control search-bar" placeholder="@ShareLocallizer.GetLocalizedHTML("Search for models...")" onkeypress="if(event.key === 'Enter') this.form.submit();">
+                                <div id="suggestionsList" class="list-group position-absolute w-100 suggestions-list"></div>
+                                <button id="voiceSearchBtn" type="button" class="btn btn-primary mic-button">
+                                    <i class="fa fa-microphone"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="col-lg-3 col-md-3 col-sm-12">
+                        <div class="shop-menu">
+                            <ul class="nav navbar-nav">
+
+                                <li>
+                                    <a asp-controller="Cart" asp-action="Index">
+                                        <i class="fas fa-shopping-cart"></i> @ShareLocallizer.GetLocalizedHTML("Cart")
+                                        <span id="cartCount" class="badge">0</span>
+                                    </a>
+                                </li>
+                                @if (User.Identity?.IsAuthenticated ?? false)
+                                {
+                                    <li><a asp-controller="Account" asp-action="Logout"><i class="fas fa-user"></i> Hi, @User.Identity.Name</a></li>
+                                }
+                                else
+                                {
+                                    <li><a asp-controller="Account" asp-action="Login"><i class="fas fa-lock"></i> @ShareLocallizer.GetLocalizedHTML("Login")</a></li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="header-bottom">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-10 col-md-9 col-sm-12 text-center text-lg-left">
+                        <div class="mainmenu">
+                            <ul class="nav navbar-nav">
+                                <li><a asp-controller="Home" asp-action="Index" class="active">@ShareLocallizer.GetLocalizedHTML("Home")</a></li>
+                                <li><a asp-controller="Cart" asp-action="Index">@ShareLocallizer.GetLocalizedHTML("Cart")</a></li>
+                                <li><a asp-controller="Home" asp-action="Privacy">@ShareLocallizer.GetLocalizedHTML("Privacy")</a></li>
+                                <li><a asp-controller="Home" asp-action="About">@ShareLocallizer.GetLocalizedHTML("About")</a></li>
+                                <li><a asp-controller="Home" asp-action="Contact">@ShareLocallizer.GetLocalizedHTML("Contact")</a></li>
+                                @if (User.Identity.IsAuthenticated && User.IsInRole("ADMIN") || User.IsInRole("EMPLOYEE"))
+                                {
+                                    <li><a asp-area="Admin" asp-controller="Product" asp-action="Index"><i class="fa fa-crosshairs"></i> Manage</a></li>
+                                }
+                                @if (User.Identity.IsAuthenticated && User.IsInRole("CSKH"))
+                                {
+                                    <li><a asp-controller="Messages" asp-action="Messages"><i class="fa fa-crosshairs"></i> CSKH</a></li>
+                                }
+                                @if (User.Identity?.IsAuthenticated ?? false)
+                                {
+                                    <li><a asp-action="Wishlist" asp-controller="Home"><i class="fa fa-heart"></i> Wishlist</a></li>
+                                    <li><a asp-action="Compare" asp-controller="Home"><i class="fa fa-star"></i> Compare</a></li>
+                                    <li class="dropdown">
+                                        <a style="cursor:pointer" class="dropdown-toggle" data-toggle="dropdown">
+                                            <i class="fa fa-user"></i> Account <span class="caret"></span>
+                                        </a>
+                                        <ul class="dropdown-menu">
+                                            <li><a asp-action="History" asp-controller="Account">History Orders</a></li>
+                                            <li><a asp-action="UpdateAccount" asp-controller="Account">Update Information</a></li>
+                                        </ul>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-sm-12 text-center text-lg-right">
+                        <div class="btn-group language-switcher">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                @ShareLocallizer.GetLocalizedHTML("Language")
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a asp-controller="Home" asp-action="ChangeLang" asp-route-culture="vi-VN">VN</a></li>
+                                <li><a asp-controller="Home" asp-action="ChangeLang" asp-route-culture="en-US">EN</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section>
+            <div class="container">
+                <div class="row">
+                    @Html.Partial("_NotificationPartial")
+                    @RenderBody()
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <section class="service-bar">
+        <div class="container">
+            <div class="row">
+                <div class="service-item">
+                    <i class="fas fa-truck"></i>
+                    <div>
+                        <strong>MIỄN PHÍ & GIAO HÀNG NHANH</strong>
+                        <span>Miễn phí giao hàng cho đơn hàng trên 1tr VNĐ</span>
+                    </div>
+                </div>
+                <div class="service-item">
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <strong>NHẬP KHẨU CHÍNH HÃNG</strong>
+                        <span>Nói Không với hàng giả</span>
+                    </div>
+                </div>
+                <div class="service-item">
+                    <i class="fas fa-credit-card"></i>
+                    <div>
+                        <strong>THANH TOÁN AN TOÀN</strong>
+                        <span>Thanh toán an toàn & đáng tin cậy</span>
+                    </div>
+                </div>
+                <div class="service-item">
+                    <i class="fas fa-box-open"></i>
+                    <div>
+                        <strong>HƠN 1000 SẢN PHẨM TRONG KHO</strong>
+                        <span>Sản phẩm mới về hàng tuần</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="footer">
+        <div class="footer-top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <div class="companyinfo">
+                            <h2><span>HUTECH</span>FIGURE</h2>
+                            <p>Mô hình anime chính hãng hàng đầu Việt Nam</p>
+                            <div class="address mt-4">
+                                <p><i class="fas fa-map-marker-alt"></i> 123 Anime Street, Ho Chi Minh City, Vietnam</p>
+                                <p><i class="fas fa-phone"></i> 09169696969</p>
+                                <p><i class="fas fa-envelope"></i> hutechfigureshop@gmail.com</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="single-widget">
+                            <h2>Chính sách</h2>
+                            <ul class="nav nav-pills nav-stacked">
+                                <li><a href="#">Tìm kiếm</a></li>
+                                <li><a href="#">Giới thiệu</a></li>
+                                <li><a href="#">Chính sách giao hàng & đổi trả</a></li>
+                                <li><a href="#">Chính sách bảo mật</a></li>
+                                <li><a href="#">Liên hệ</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="single-widget">
+                            <h2>Hướng dẫn</h2>
+                            <ul class="nav nav-pills nav-stacked">
+                                <li><a href="#">Danh mục blog</a></li>
+                                <li><a href="#">Hướng dẫn mua hàng</a></li>
+                                <li><a href="#">Hướng dẫn đặt hàng</a></li>
+                                <li><a href="#">Điều khoản dịch vụ</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="single-widget">
+                            <h2>Tổng đài hỗ trợ</h2>
+                            <ul class="nav nav-pills nav-stacked">
+                                <li><a href="#">Gọi mua hàng: 09169696969</a></li>
+                                <li><a href="#">Gọi bảo hành: 09169696969</a></li>
+                                <li><a href="#">Gọi hợp tác kinh doanh, mua sỉ: 09169696969</a></li>
+                            </ul>
+                            <h2 class="mt-4">Phương thức thanh toán</h2>
+                            <div class="payment-methods">
+                                <img src="https://download.logo.wine/logo/Visa_Inc./Visa_Inc.-Logo.wine.png" alt="Visa">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard">
+                                <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Icon-VNPAY-QR.png" alt="VNPay">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="row">
+                    <p class="pull-left">Copyright © 2025 Lemon Shop Inc. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Chat Widget -->
+    @{
+        var currentUser = await UserManager.GetUserAsync(User);
+        var currentUserId = currentUser?.Id ?? "";
+        string receiverId = "";
+        string receiverUserName = "";
+
+        if (User.IsInRole("CUSTOMER"))
+        {
+            var cskhUser = await _context.Users.FirstOrDefaultAsync(u => u.UserName == "cskh");
+            receiverId = cskhUser?.Id ?? "f207e978-52df-4d21-844f-b615034f4caf";
+            receiverUserName = cskhUser?.UserName ?? "cskh";
+        }
+        else if (User.IsInRole("CSKH"))
+        {
+            receiverId = ViewData["SelectedUserId"]?.ToString() ?? "";
+            receiverUserName = ViewData["SelectedUserName"]?.ToString() ?? "Khách hàng";
+        }
+
+        var chatModel = new WebSiteBanMoHinh.ViewModels.CombinedMessagesViewModel
+            {
+                Chat = new WebSiteBanMoHinh.ViewModels.ChatViewModel
+                {
+                    CurrentUserId = currentUserId,
+                    ReceiverId = receiverId,
+                    ReceiverUserName = receiverUserName,
+                    Messages = new List<WebSiteBanMoHinh.ViewModels.UserMessagesListViewModel>()
+                }
+            };
+    }
+    @if (User.IsInRole("CUSTOMER"))
+    {
+        @await Html.PartialAsync("_ChatWidget", chatModel)
+    }
+
+    <script src="~/js/jquery.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+    <script src="~/js/price-range.js"></script>
+    <script src="~/js/jquery.prettyPhoto.js"></script>
+    <script src="~/js/main.js"></script>
+    <script async data-taggo-botid="67e56ff9e662d15a8e894693" src="https://widget.taggo.chat/v2.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        window.fbAsyncInit = function() {
+            FB.init({
+                xfbml: true,
+                version: 'v18.0'
+            });
+        };
+
+        (function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s); js.id = id;
+            js.src = 'https://connect.facebook.net/vi_VN/sdk/xfbml.customerchat.js';
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var voiceBtn = document.getElementById("voiceSearchBtn");
+            var searchBox = document.getElementById("searchBox");
+            var searchForm = searchBox.closest("form");
+
+            if (voiceBtn && (window.SpeechRecognition || window.webkitSpeechRecognition)) {
+                var recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.lang = 'vi-VN';
+
+                voiceBtn.addEventListener("click", function () {
+                    try {
+                        recognition.start();
+                        console.log("🎤 Đang lắng nghe...");
+                    } catch (err) {
+                        console.error("Lỗi khi bắt đầu nhận diện giọng nói:", err);
+                        alert("Không thể sử dụng tìm kiếm bằng giọng nói. Hãy kiểm tra quyền microphone!");
+                    }
+                });
+
+                recognition.onresult = function (event) {
+                    var searchTerm = event.results[0][0].transcript;
+                    searchBox.value = searchTerm;
+                    console.log("📢 Kết quả nhận diện:", searchTerm);
+                    searchForm.submit();
+                };
+
+                recognition.onerror = function (event) {
+                    console.error("Lỗi nhận diện:", event.error);
+                    alert("Không thể nhận diện giọng nói: " + event.error);
+                };
+            } else {
+                console.warn("Trình duyệt không hỗ trợ Speech Recognition.");
+            }
+        });
+    </script>
+
+    @* Script gio hang *@
+    <script>
+        $(document).ready(function () {
+            updateCartCount(); // Lấy số lượng ban đầu khi trang tải
+        });
+
+        // Hàm cập nhật số lượng giỏ hàng
+        function updateCartCount() {
+            $.ajax({
+                url: '@Url.Action("GetCartCount", "Cart")',
+                type: 'GET',
+                success: function (data) {
+                    $('#cartCount').text(data.count);
+                },
+                error: function () {
+                    console.log("Không thể lấy số lượng giỏ hàng");
+                }
+            });
+        }
+    </script>
+    @* script hiển thị danh sách gợi ý *@
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+                              $(document).ready(function(){
+            function highlight(text, term) {
+                var regex = new RegExp("(" + term + ")", "gi");
+                return text.replace(regex, "<strong>$1</strong>");
+            }
+
+            $('#searchBox').on('input', function(){
+                var query = $(this).val().trim();
+                var suggestionsList = $('#suggestionsList');
+
+                if(query.length === 0) {
+                    suggestionsList.empty();
+                    return;
+                }
+
+                $.ajax({
+                    url: '/Search/Suggestions',
+                    data: { term: query },
+                    success: function(data) {
+                        suggestionsList.empty();
+
+                        data.forEach(function(item){
+                            var highlightedName = highlight(item.name, query);
+                            var formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price);
+                            var imageUrl = item.imageUrl ? `/media/products/${item.imageUrl}` : '/images/no-image.png';
+
+                            var html = `
+                                <a href="javascript:void(0)" class="list-group-item list-group-item-action d-flex align-items-center suggestion-item" data-name="${item.name}">
+                                    <img src="${imageUrl}" class="me-2 rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold">${highlightedName}</div>
+                                        <small class="text-muted">${formattedPrice}</small>
+                                    </div>
+                                </a>
+                            `;
+                            suggestionsList.append(html);
+                        });
+                    },
+                    error: function() {
+                        suggestionsList.empty();
+                        suggestionsList.append('<div class="list-group-item">Đã có lỗi xảy ra. Vui lòng thử lại.</div>');
+                    }
+                });
+            });
+
+            // Khi click vào item gợi ý
+            $(document).on('click', '.suggestion-item', function () {
+                var selectedTerm = $(this).data('name').toLowerCase();
+                $('#searchBox').val(selectedTerm);
+                $('#suggestionsList').empty();
+
+                setTimeout(function() {
+                    $('form').submit();
+                }, 200);
+            });
+        });
+    </script>
+</body>
+</html>
