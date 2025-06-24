@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebSiteBanMoHinh.Models;
 using WebSiteBanMoHinh.Repository;
@@ -12,14 +12,14 @@ namespace WebSiteBanMoHinh.Controllers
         {
             _dataContext = context;
         }
-        public async Task<IActionResult> Index(string Slug = "", string sort_by = "", string startprice = "", string endprice = "")
+        public async Task<IActionResult> Index(string Slug ="" , string sort_by = "" , string startprice = "" ,string endprice ="")
         {
             CategoryModel category = _dataContext.Categories.Where(c => c.Slug == Slug).FirstOrDefault();
             if (category == null) return RedirectToAction("Index");
             ViewBag.Slug = Slug;
             IQueryable<ProductModel> productsByCategory = _dataContext.Products.Where(p => p.CategoryId == category.Id);
             var count = await productsByCategory.CountAsync();
-            if (count > 0)
+            if(count > 0)
             {
                 if (sort_by == "price_increase")
                 {
